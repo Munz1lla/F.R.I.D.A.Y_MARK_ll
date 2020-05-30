@@ -1,3 +1,4 @@
+# Modules
 from google import google
 import boto3
 import speech_recognition as sr
@@ -5,27 +6,27 @@ import os
 from playsound import playsound
 import webbrowser
 import random
-
+# Recognizing your commands
 speech = sr.Recognizer()
-
+# Command Dictionaries
 greeting_dict = {'hello ': 'hello', 'hi': 'hi'}
 open_launch_dict = {'open': 'open', 'launch': 'launch'}
 google_searches_dict = {'what': 'what', 'why': 'why', 'who': 'who', 'where': 'where', 'which': 'which', 'when': 'when'}
 social_media_dict = {'facebook': 'https://www.facebook.com', 'youtube': 'https://www.youtube.com'}
 thank_you_dict = {'thank you': 'thank you', 'thanks': 'thanks'}
-
+# mp3 lists/AWS polly services
 mp3_thankyou_list = ['mp3/friday/thankyou_1.mp3', 'mp3/friday/thankyou_2.mp3']
 mp3_listening_problem_list = ['mp3/friday/Listening_problem_1.mp3', 'mp3/friday/Listening_problem_2.mp3']
 mp3_struggling_list = ['mp3/friday/struggling_1.mp3']
 mp3_google_search = ['mp3/friday/google_search_1.mp3', 'mp3/friday/google_search_3.mp3']
 mp3_greeting_list = ['mp3/friday/greeting_2.mp3', 'mp3/friday/greeting_3.mp3']
 mp3_open_launch_list = ['mp3/friday/open_1.mp3', 'mp3/friday/open_2.mp3', 'mp3/friday/open_3.mp3']
-
+#  Google search result line count
 error_occurrence = 0
 counter = 0
-
+# Polly services in boto3 module
 polly = boto3.client('polly')
-
+# chooses the voice id for your program : choose from 24 languages and 8 different English settings 
 def play_sound_from_polly(result):
     global counter
     mp3_name = 'output.mp3'.format(counter)
@@ -37,7 +38,7 @@ def play_sound_from_polly(result):
     os.remove(mp3_name)
     counter+=1
 
-
+# Display/ playsound of google search result
 def google_search_result(query):
     search_result = google.search(query)
     print(search_result)
@@ -46,21 +47,21 @@ def google_search_result(query):
         play_sound_from_polly(result.description.replace('...', '').rsplit('.', 3)[0])
         break
 
-
+# Google search dictionary + your query
 def is_valid_google_search(phrase):
     if google_searches_dict.get(phrase.split(' ')[0]) == phrase.split(' ')[0]:
         return True
-
+# Cycle through dictionaries at random
 def play_sound(mp3_list):
     mp3 = random.choice(mp3_list)
     playsound(mp3)
-
+# Print voice command + "Listening..."
 def read_voice_cmd():
     voice_text = ''
     print('Listening...')
 
     global error_occurrence
-
+# Microphone/ playsound if the program cant understand you/ you are silent
     try:
         with sr.Microphone() as source:
             audio = speech.listen(source=source, timeout=10, phrase_time_limit=5)
@@ -73,7 +74,7 @@ def read_voice_cmd():
             play_sound(mp3_struggling_list)
             error_occurrence += 1
 
-
+# Define the length of which you can be silent before friday asks if youre still there
     except sr.RequestError as e:
         print('Network Error.')
     except sr.WaitTimeoutError:
@@ -85,7 +86,7 @@ def read_voice_cmd():
             error_occurrence += 1
 
     return voice_text
-
+# Greeting dictionary and the return result
 def is_valid_note(greeting_dict, voice_note):
     for key, value in greeting_dict.iteritems():
         # 'Hello Friday'
@@ -103,7 +104,7 @@ def is_valid_note(greeting_dict, voice_note):
 
 
 
-
+# While loop
 if __name__ == '__main__':
 
     playsound('mp3/friday/beginning_greeting.mp3')
